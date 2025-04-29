@@ -109,7 +109,7 @@ def shopify_order_by_confirmation_number_and_email():
 def get_shopify_products():
     """Get a list of products from a Shopify store by product_id or search key word.
 
-    Args:
+    Query Parameters:
         store_name (str):  Unique Shopify store ID string.
         api_version (str, optional):  Shopify API version. 
         product_id (str, optional):  Unique Shopify store item product ID.
