@@ -1,0 +1,6 @@
+flask
+requests
+cryptography
+gunicorn
+urllib3
+pip-system-certs
