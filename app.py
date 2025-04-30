@@ -79,10 +79,13 @@ def shopify_order_by_confirmation_number_and_email():
     shopify_api_version = request.args.get('api_version')
     confirmation_number = request.args.get('confirmation_number')
     email = request.args.get('email')
-
+    
     try:
-        orders = GetOrders(store_name, shopify_access_token, shopify_api_version,
-                           email=email, confirmation_number=confirmation_number)
+        customer_id = GetCustomerID(store_name, email, shopify_access_token, shopify_api_version)
+        if not customer_id:
+            raise Exception (f'Unable to find customer ID for email {email}')
+
+        orders = GetOrdersForCustomerId(store_name, customer_id, shopify_access_token, shopify_api_version)
         app.logger.info(f"Num orders found for {email}: {len(orders)}")
         
         order = f'No orders for {email} with confirmation number {confirmation_number} found.'

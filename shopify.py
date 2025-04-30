@@ -152,6 +152,198 @@ def GetOrders(store_name: str, shopify_access_token: str,
     except Exception as e:
         logging.error(e)
         raise Exception(f"Shopify order search error: {e}")
+    
+
+def GetOrdersForCustomerId(store_name: str, customer_id: str, shopify_access_token: str, 
+              api_verison: str = SHOPIFY_API_VERSION) -> list:
+    """Gets orders from Shopify placed by a customer.
+
+    Args:
+        store_name (str): Unique Shopify store ID string.
+        shopify_access_token (str): Shopify API access token.
+        api_version (str, optional):  Shopify API version.
+        customer_id (str, optional):  Unique customer ID.
+
+    returns (list):
+        List of Shopify orders matching search criteria, descending by order creation time.
+    """
+    api_verison = api_verison or SHOPIFY_API_VERSION
+    url = f"https://{store_name}.myshopify.com/admin/api/{api_verison}/graphql.json"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": shopify_access_token,
+    }
+    query = """
+        fragment Money on MoneyBag {
+            presentmentMoney {
+                amount
+                currencyCode
+            }
+        }
+        fragment Return on Return {
+            name
+            id
+            status
+            decline {
+                note
+                reason
+            }
+            totalQuantity
+            returnLineItems (first: 10) {
+                nodes {
+                    id
+                    quantity
+                    refundableQuantity
+                    refundedQuantity
+                    returnReason 
+                    returnReasonNote
+                }
+            }
+        }
+
+        query GetOrderByOrderCustomer ($customer_id: ID!, $num_orders: Int!) {
+            customer(id: $customer_id) {
+            orders(first: $num_orders, sortKey: CREATED_AT, reverse: true) {
+                nodes {
+                    id
+                    orderNumber: name
+                    confirmationNumber
+                    displayFulfillmentStatus
+                    displayFinancialStatus
+                    fullyPaid
+                    createdAt
+                    requiresShipping
+                    processedAt
+                    updatedAt
+                    cancelReason
+                    closed
+                    confirmed
+                    currencyCode
+                    note
+                    totalWeightGrams: totalWeight
+                    currentTotalPriceSet {...Money}
+                    currentShippingPriceSet {...Money}
+                    shippingLine {
+                        title
+                        carrierIdentifier
+                        code
+                        currentDiscountedPriceSet {...Money}
+                        deliveryCategory
+                    }
+                    fulfillments (first: 10) {
+                        createdAt
+                        deliveredAt
+                        displayStatus
+                        estimatedDeliveryAt
+                        inTransitAt
+                        name
+                        status
+                        requiresShipping
+                        trackingInfo {
+                            company
+                            number
+                            url
+                        }
+                    }
+                    refundable
+                    refunds {
+                        return {...Return}
+                        refundLineItems (first: 10) {
+                            nodes {
+                                id
+                                quantity
+                                priceSet {...Money}
+                                subtotalSet {...Money}
+                                totalTaxSet {...Money}
+                            }
+                        }
+                        createdAt
+                        note
+                        id
+                    }
+                    returns (first: 10) {
+                        nodes {...Return}
+                    }
+                }
+            }
+            }
+        }
+    """
+
+    # Construct query string based on input parameters
+    if not customer_id:
+        raise ValueError("Either order_number or both email and confirmation number must be provided.")
+    
+    try:
+        # Get recent orders by query
+        response = requests.post(url, headers=headers, json={ 
+            'query': query,  
+            'variables': { 
+                'customer_id': customer_id, 
+                'num_orders': NUM_ORDERS_TO_RETURN 
+            }
+        })
+        response.raise_for_status()
+        result = response.json()
+        orders = result.get('data', {}).get('customer', {}).get('orders', {}).get('nodes', [])
+        return orders
+    
+    except Exception as e:
+        logging.error(e)
+        raise Exception(f"Shopify order search error: {e}")
+
+
+
+def GetCustomerID(store_name: str, email: str, shopify_access_token: str, 
+                api_verison: str = SHOPIFY_API_VERSION) -> str:
+    """Get unique customer ID for a Shopify customer by their email address.
+    
+    Args:
+        store_name (str): Unique Shopify store ID string.
+        shopify_access_token (str): Shopify API access token.
+        api_version (str, optional):  Shopify API version.
+        email (str):  Email address associated with a customer.
+
+    returns (str):
+        Customer ID string if found, else returns None.
+
+    """
+    api_verison = api_verison or SHOPIFY_API_VERSION
+    url = f"https://{store_name}.myshopify.com/admin/api/{api_verison}/graphql.json"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": shopify_access_token,
+    }
+    query = """
+        query FindCustomerByEmail ($query: String!) {
+        customers (first: 1, query: $query) {
+            nodes {
+            id
+            email
+            }
+        }
+        }
+    """
+    # Build search query string based on input parameters
+    if not email:
+        raise ValueError("Customer email must be provided.")
+    
+    try:
+        # Get products by query
+        response = requests.post(url, headers=headers, json={
+            "query": query, 
+            "variables": { 
+                "query": f"email:{email}"
+            } 
+        })
+        response.raise_for_status()
+        result = response.json()
+        customers = result.get('data', {}).get('customers', {}).get('nodes', [])
+        return customers[0].get('id') if customers else None
+    
+    except Exception as e:
+        logging.error(e)
+        raise Exception(f"Shopify customer search error: {e}")
 
 
 def GetProducts(store_name: str, shopify_access_token: str, 
