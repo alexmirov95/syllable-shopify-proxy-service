@@ -83,7 +83,9 @@ def shopify_order_by_confirmation_number_and_email():
     try:
         customer_id = GetCustomerID(store_name, email, shopify_access_token, shopify_api_version)
         if not customer_id:
-            raise Exception (f'Unable to find customer ID for email {email}')
+            return jsonify({
+            'Error': f'Invalid Email. Customer not found with email {email}',
+        }), 400
 
         orders = GetOrdersForCustomerId(store_name, customer_id, shopify_access_token, shopify_api_version)
         app.logger.info(f"Num orders found for {email}: {len(orders)}")
