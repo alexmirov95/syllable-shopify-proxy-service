@@ -7,7 +7,7 @@ Serves as proxy layer between Syllable agents and Shopify APIs.
 import logging
 from flask import Flask, request, jsonify
 
-from shopify import GetOrders, GetProducts
+from shopify import GetOrders, GetProducts, GetCustomerID, GetOrdersForCustomerId
 
 logging.basicConfig(
     level=logging.INFO
