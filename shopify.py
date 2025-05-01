@@ -394,9 +394,13 @@ def GetProducts(store_name: str, shopify_access_token: str,
                 totalInventory
                 vendor
                 hasOnlyDefaultVariant
-                priceRangeV2 {
+                currentPrice: priceRangeV2 {
                     maxVariantPrice {...Money}
                     minVariantPrice {...Money}
+                }
+                fullPrice: compareAtPriceRange {
+                    maxVariantCompareAtPrice {...Money}
+                    minVariantCompareAtPrice {...Money}
                 }
                 variants(first: 10) {
                 edges {
