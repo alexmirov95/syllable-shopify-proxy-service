@@ -389,6 +389,7 @@ def GetProducts(store_name: str, shopify_access_token: str,
                 feedback {
                     summary
                 }
+                handle
                 status
                 tags
                 totalInventory
@@ -402,7 +403,7 @@ def GetProducts(store_name: str, shopify_access_token: str,
                     maxVariantCompareAtPrice {...Money}
                     minVariantCompareAtPrice {...Money}
                 }
-                variants(first: 10) {
+                variants(first: 50) {
                 edges {
                     node {
                     displayName
