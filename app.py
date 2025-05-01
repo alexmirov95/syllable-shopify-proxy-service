@@ -162,5 +162,29 @@ def get_shopify_products():
         return jsonify({"error": "An error occurred while retrieving products."}), 500
 
 
+@app.route('/shopify/get-product-url', methods=['GET'])
+def get_product_url():
+    """Returns the url for a Shopify store product.
+
+    Args:
+        store_name (str):  Unique Shopify store ID string.
+        product_handle (str):  Shopify product handle. Example: "polo-shirt-1"
+
+    Returns (str):
+        Complete URL to the product in the Shopify store.
+    """
+    store_name = request.args.get('store_name')
+    product_handle = request.args.get('product_handle')
+
+    if not store_name or not product_handle:
+        return jsonify({
+            'error': 'Missing store_name or product_handle'
+        }), 400
+
+    return jsonify({
+        'product_url': f'https://{store_name}.myshopify.com/products/{product_handle}',
+    }), 200
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
