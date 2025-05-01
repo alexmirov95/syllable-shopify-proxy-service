@@ -392,7 +392,6 @@ def GetProducts(store_name: str, shopify_access_token: str,
                 handle
                 status
                 tags
-                totalInventory
                 vendor
                 hasOnlyDefaultVariant
                 currentPrice: priceRangeV2 {
@@ -408,7 +407,8 @@ def GetProducts(store_name: str, shopify_access_token: str,
                     node {
                     displayName
                     title
-                    price 
+                    currentPrice: price
+                    fullPrice: compareAtPrice 
                     availableForSale
                     OutOfStockOrderingPolicy: inventoryPolicy
                     }
