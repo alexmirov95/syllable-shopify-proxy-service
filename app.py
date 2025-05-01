@@ -1,8 +1,20 @@
 """app.py
 
 Syllable Shopify Proxy Service.
+Serves as proxy layer between Syllable Agents and Shopify APIs.
 
-Serves as proxy layer between Syllable agents and Shopify APIs.
+Endpoints:
+    - GET /shopify/order-by-number
+    - GET /shopify/order-by-confirmation-number-and-email
+    - GET /shopify/products
+    - GET /shopify/get-product-url
+
+To run the application locally:
+    1. Install dependencies
+        $ pip install -r requirements.txt
+    2. Run the application
+        $ python app.py
+    3. Use curl or Postman to test the endpoints.
 """
 import logging
 from flask import Flask, request, jsonify
@@ -122,7 +134,7 @@ def get_shopify_products():
 
     Headers:
         X-Shopify-Access-Token (str):  Shopify access token.
-        
+
     Query Parameters:
         store_name (str):  Unique Shopify store ID string.
         api_version (str, optional):  Shopify API version. 
