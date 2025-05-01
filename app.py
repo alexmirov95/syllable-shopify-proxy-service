@@ -24,6 +24,9 @@ def health_check():
 @app.route('/shopify/order-by-number', methods=['GET'])
 def shopify_order_by_number():
     """Get a shopify order by order number.
+
+    Headers:
+        X-Shopify-Access-Token (str):  Shopify access token.
     
     Query Parameters:
         store_name (str):  Unique Shopify store ID string.
@@ -62,6 +65,9 @@ def shopify_order_by_number():
 def shopify_order_by_confirmation_number_and_email():
     """Get list of Shopify orders using order confirmation number and/or user email address.
     
+    Headers:
+        X-Shopify-Access-Token (str):  Shopify access token.
+
     Query Parameters:
         store_name (str):  Unique Shopify store ID string.
         api_version (str, optional):  Shopify API version. 
@@ -114,6 +120,9 @@ def shopify_order_by_confirmation_number_and_email():
 def get_shopify_products():
     """Get a list of products from a Shopify store by product_id or search key word.
 
+    Headers:
+        X-Shopify-Access-Token (str):  Shopify access token.
+        
     Query Parameters:
         store_name (str):  Unique Shopify store ID string.
         api_version (str, optional):  Shopify API version. 
@@ -166,7 +175,7 @@ def get_shopify_products():
 def get_product_url():
     """Returns the url for a Shopify store product.
 
-    Args:
+    Query Parameters:
         store_name (str):  Unique Shopify store ID string.
         product_handle (str):  Shopify product handle. Example: "polo-shirt-1"
 
