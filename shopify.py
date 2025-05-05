@@ -146,7 +146,7 @@ def GetOrders(store_name: str, shopify_access_token: str,
         }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
-        orders = result.get('data', {}).get('orders', {}).get('nodes', [])
+        orders = _dig(result, ['data', 'orders', 'nodes'], [])
         return orders
     
     except Exception as e:
@@ -285,7 +285,7 @@ def GetOrdersForCustomerId(store_name: str, customer_id: str, shopify_access_tok
         }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
-        orders = result.get('data', {}).get('customer', {}).get('orders', {}).get('nodes', [])
+        orders = orders = _dig(result, ['data', 'customer', 'orders', 'nodes'], [])
         return orders
     
     except Exception as e:
@@ -338,7 +338,7 @@ def GetCustomerID(store_name: str, email: str, shopify_access_token: str,
         }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
-        customers = result.get('data', {}).get('customers', {}).get('nodes', [])
+        customers = _dig(result, ['data', 'customers', 'nodes'], [])
         return customers[0].get('id') if customers else None
     
     except Exception as e:
@@ -408,7 +408,7 @@ def GetProducts(store_name: str, shopify_access_token: str,
                     displayName
                     title
                     currentPrice: price
-                    fullPrice: compareAtPrice 
+                    fullPrice: compareAtPrice
                     availableForSale
                     OutOfStockOrderingPolicy: inventoryPolicy
                     }
@@ -441,9 +441,22 @@ def GetProducts(store_name: str, shopify_access_token: str,
         }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
-        products = result.get('data', {}).get('products', {}).get('edges', [])
+        products = _dig(result, ['data', 'products', 'edges'], [])
         return products
     
     except Exception as e:
         logging.error(e)
         raise Exception(f"Shopify product search error: {e}")
+
+
+def _dig(data: dict, keys: list[str | int], default: any = None) -> any:
+    """Helper function to dig into a nested dictionary."""
+    current = data
+    for key in keys:
+        if isinstance(current, dict) and key in current:
+            current = current[key]
+        elif isinstance(current, list) and isinstance(key, int) and key < len(current):
+            current = current[key]
+        else:
+            return default
+    return current
