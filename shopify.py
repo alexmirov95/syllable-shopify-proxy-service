@@ -3,7 +3,7 @@
 Functions to query Shopify GraphQL API.
 """
 
-import requests, logging
+import requests, logging, certifi
 
 NUM_ORDERS_TO_RETURN = 50 # Number of orders to return from Shopify.
 NUM_PRODUCTS_TO_RETURN = 20 # Number of produts to return from Shopify.
@@ -143,7 +143,7 @@ def GetOrders(store_name: str, shopify_access_token: str,
                 'query': query_string, 
                 'num_orders': NUM_ORDERS_TO_RETURN 
             }
-        })
+        }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
         orders = result.get('data', {}).get('orders', {}).get('nodes', [])
@@ -282,7 +282,7 @@ def GetOrdersForCustomerId(store_name: str, customer_id: str, shopify_access_tok
                 'customer_id': customer_id, 
                 'num_orders': NUM_ORDERS_TO_RETURN 
             }
-        })
+        }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
         orders = result.get('data', {}).get('customer', {}).get('orders', {}).get('nodes', [])
@@ -335,7 +335,7 @@ def GetCustomerID(store_name: str, email: str, shopify_access_token: str,
             "variables": { 
                 "query": f"email:{email}"
             } 
-        })
+        }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
         customers = result.get('data', {}).get('customers', {}).get('nodes', [])
@@ -438,7 +438,7 @@ def GetProducts(store_name: str, shopify_access_token: str,
                 "query": query_string,
                 "num_products": NUM_PRODUCTS_TO_RETURN,
             } 
-        })
+        }, verify=certifi.where())
         response.raise_for_status()
         result = response.json()
         products = result.get('data', {}).get('products', {}).get('edges', [])

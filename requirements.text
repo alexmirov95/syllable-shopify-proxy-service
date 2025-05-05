@@ -4,3 +4,4 @@ cryptography
 gunicorn
 urllib3
 pip-system-certs
+certifi==2025.1.31
